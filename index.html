@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="theme-color" content="#0088cc">
+        <title>Matilda</title>
+        <link href="style.css" rel="stylesheet" />
+        <link rel="manifest" href="/manifest.json">
+        <link rel="icon" type="image/png" href="/assets/loading.png">
+        <link
+            href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <!-- Экран загрузки с кодом -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-container">
+                <div class="code-lines"></div>
+            </div>
+        </div>
+
+        <!-- Экран аутентификации -->
+        <div id="auth-screen" class="auth-screen hidden">
+            <div class="auth-container">
+                <video class="auth-video" autoplay loop muted playsinline>
+                    <source src="assets/matilda-intro.mp4" type="video/mp4" />
+                </video>
+                <h1 class="app-title">Matilda Messenger</h1>
+
+                <!-- Форма входа -->
+                <div id="login-form" class="auth-form">
+                    <h2>Вход в аккаунт</h2>
+                    <input
+                        type="text"
+                        id="login-username"
+                        placeholder="Никнейм"
+                        class="input-field"
+                    />
+                    <input
+                        type="password"
+                        id="login-password"
+                        placeholder="Пароль"
+                        class="input-field"
+                    />
+                    <button id="login-btn" class="auth-button">Войти</button>
+                    <p class="auth-switch">
+                        Нет аккаунта?
+                        <span id="show-register">Зарегистрироваться</span>
+                    </p>
+                </div>
+
+                <!-- Форма регистрации -->
+                <div id="register-form" class="auth-form hidden">
+                    <h2>Регистрация</h2>
+                    <input
+                        type="text"
+                        id="register-username"
+                        placeholder="Никнейм"
+                        class="input-field"
+                    />
+                    <div
+                        id="username-suggestions"
+                        class="username-suggestions hidden"
+                    ></div>
+                    <input
+                        type="text"
+                        id="register-name"
+                        placeholder="Имя"
+                        class="input-field"
+                    />
+                    <input
+                        type="password"
+                        id="register-password"
+                        placeholder="Пароль"
+                        class="input-field"
+                    />
+                    <input
+                        type="password"
+                        id="register-confirm"
+                        placeholder="Подтвердите пароль"
+                        class="input-field"
+                    />
+                    <button id="register-btn" class="auth-button">
+                        Зарегистрироваться
+                    </button>
+                    <p class="auth-switch">
+                        Есть аккаунт? <span id="show-login">Войти</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной экран мессенджера -->
+        <div id="messenger-screen" class="messenger-screen hidden">
+            <!-- Боковое меню -->
+            <div id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <div class="user-profile-mini">
+                        <div id="profile-avatar" class="profile-avatar"></div>
+                        <div class="profile-info">
+                            <div id="profile-name" class="profile-name"></div>
+                            <div
+                                id="profile-username"
+                                class="profile-username"
+                            ></div>
+                        </div>
+                    </div>
+                    <button id="new-channel-btn" class="settings-button">
+                        <img
+                            src="assets/channel-icon.png"
+                            alt="Канал"
+                            class="button-icon"
+                        />
+                    </button>
+                </div>
+
+                <div class="sidebar-search">
+                    <input
+                        type="text"
+                        id="chat-search"
+                        placeholder="Поиск"
+                        class="search-input"
+                    />
+                </div>
+
+                <div class="sidebar-actions">
+                    <button id="new-chat-btn" class="new-chat-button">
+                        + Новый чат
+                    </button>
+                </div>
+
+                <div id="chats-list" class="chats-list">
+                    <div class="no-chats">Нет чатов</div>
+                </div>
+            </div>
+
+            <!-- Область чата -->
+            <div class="chat-area">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <h2>Добро пожаловать в Матильду!</h2>
+                        <p>Выберите чат или создайте новый</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран чата -->
+        <div id="chat-screen" class="chat-screen hidden">
+            <!-- Заголовок чата -->
+            <header class="chat-header">
+                <button id="back-to-chats" class="back-button">‹</button>
+                <div class="chat-info">
+                    <div class="chat-avatar-small" id="chat-avatar-small"></div>
+                    <div class="chat-details">
+                        <h2 id="chat-title">Имя пользователя</h2>
+                        <span id="chat-status" class="chat-status">в сети</span>
+                    </div>
+                </div>
+                <div class="chat-actions" id="chat-actions">
+                    <button id="call-btn" class="chat-action-btn call-btn-hidden">
+                        <img src="assets/call-icon.png" alt="Позвонить" class="button-icon">
+                    </button>
+                </div>
+            </header>
+
+            <!-- Сообщения -->
+            <div id="messages-container" class="messages-container"></div>
+
+            <!-- Кнопка Старт для ботов -->
+            <div id="bot-start-panel" class="bot-start-panel hidden">
+                <button id="bot-start-btn" class="bot-start-btn">СТАРТ</button>
+            </div>
+
+            <!-- Панель ввода -->
+            <div class="input-panel">
+                <button id="mini-app-btn" class="mini-app-btn hidden">
+                    <img
+                        src="assets/mini-app-icon.png"
+                        alt="Mini App"
+                        class="mini-app-icon"
+                    />
+                </button>
+                <button class="attach-btn">
+                    <img
+                        src="assets/media-icon.png"
+                        alt="Медиа"
+                        class="button-icon"
+                    />
+                </button>
+                <input
+                    type="text"
+                    id="message-input"
+                    placeholder="Введите сообщение..."
+                    class="message-input"
+                />
+                <button id="voice-btn" class="voice-button">
+                    <img
+                        src="assets/voice-icon.png"
+                        alt="Голосовое сообщение"
+                        class="button-icon"
+                    />
+                </button>
+                <button id="send-btn" class="send-button">
+                    <img
+                        src="assets/message-icon.png"
+                        alt="Отправить"
+                        class="button-icon"
+                    />
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран настроек/профиля -->
+        <div id="settings-screen" class="settings-screen hidden">
+            <header class="settings-header">
+                <button id="back-to-messenger" class="back-button">‹</button>
+                <h2>Настройки</h2>
+            </header>
+
+            <div class="settings-content">
+                <button id="customization-btn-header" class="customization-header-btn">
+                    <img src="assets/custom-icon.png" alt="Кастомизация" class="customization-icon">
+                </button>
+                <div class="profile-section">
+                    <div
+                        class="profile-avatar-large"
+                        id="settings-avatar"
+                    ></div>
+                    <div class="profile-details">
+                        <h3 id="settings-name"></h3>
+                        <p id="settings-username"></p>
+                        <p class="profile-status">в сети</p>
+                    </div>
+                </div>
+
+                <div class="settings-menu">
+                    <div class="settings-item" id="edit-profile-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/profile-icon.png"
+                                alt="Профиль"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Профиль</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="customization-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/custom-icon.png"
+                                alt="Кастомизация"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Кастомизация</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="privacy-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/privacy-icon.png"
+                                alt="Приватность"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Приватность</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="premium-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/premium-icon.png"
+                                alt="Premium"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Matilda Premium</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="favorites-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/favorites-icon.png"
+                                alt="Избранное"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Избранное</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="folders-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/folder-icon.png"
+                                alt="Папки"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Папки</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                    <div class="settings-item" id="logout-btn">
+                        <span class="settings-icon">
+                            <img
+                                src="assets/logout-icon.png"
+                                alt="Выйти"
+                                class="settings-icon-img"
+                            />
+                        </span>
+                        <span>Выйти</span>
+                        <span class="settings-arrow">›</span>
+                    </div>
+                </div>
+
+                <div class="app-version">
+                    <div class="app-name">Matilda Messenger</div>
+                    <div class="version-text">Version 2.0 BETA</div>
+                </div>
+                <div class="admin-access" id="admin-access">ADMIN</div>
+            </div>
+        </div>
+
+        <!-- Модальное окно создания чата -->
+        <div id="new-chat-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Новый чат</h3>
+                <input
+                    type="text"
+                    id="new-chat-username"
+                    placeholder="Введите никнейм"
+                    class="input-field"
+                />
+                <div id="user-search-results" class="user-search-results"></div>
+                <div class="modal-buttons">
+                    <button id="cancel-chat-btn" class="cancel-button">
+                        Отмена
+                    </button>
+                    <button id="create-chat-btn" class="done-button">
+                        Готово
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран Premium -->
+        <div id="premium-screen" class="premium-screen hidden">
+            <header class="premium-header">
+                <button id="back-from-premium" class="back-button">‹</button>
+                <h2>Matilda Premium</h2>
+                <button id="pezdy-button-header" class="pezdy-button-header">
+                    <img src="assets/pezdi-but.png" alt="Пёзды">
+                </button>
+            </header>
+            <div class="premium-content">
+                <img src="assets/premium-background.png" alt="Premium" class="premium-image">
+                <h1 class="premium-title">Matilda Premium</h1>
+                <div id="premium-status-container"></div>
+                <button id="activate-premium-btn" class="premium-activate-btn">Активировать</button>
+                <div class="premium-features">
+                    <h3>Возможности Premium:</h3>
+                    <div class="premium-feature">Верификация профиля</div>
+                    <div class="premium-feature">Возможность установки фона профиля</div>
+                    <div class="premium-feature">Уникальные рамки для аватара</div>
+                    <div class="premium-feature">Приоритетная поддержка</div>
+                    <div class="premium-feature">Доступ к эксклюзивным стикерам</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран Admin -->
+        <div id="admin-screen" class="admin-screen hidden">
+            <header class="admin-header">
+                <button id="back-from-admin" class="back-button">‹</button>
+                <h2 id="admin-title">Админ-панель</h2>
+            </header>
+            <div class="admin-content">
+                <div id="admin-user-list" class="admin-user-list"></div>
+            </div>
+        </div>
+
+        <!-- Экран управления папками -->
+        <div id="folders-screen" class="folders-screen hidden">
+            <header class="folders-header">
+                <button id="back-from-folders" class="back-button">‹</button>
+                <h2>Папки</h2>
+            </header>
+            <div class="folders-content">
+                <div class="folder-list-item" id="all-folder-item">
+                    <img src="assets/all-folder-icon.png" alt="Все" class="folder-item-icon">
+                    <span>Все</span>
+                </div>
+                <div id="folders-list"></div>
+                <div class="folder-list-item" id="create-folder-item">
+                    <img src="assets/create-folder-icon.png" alt="Создать папку" class="folder-item-icon">
+                    <span>Создать папку</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран валюты Пёзды -->
+        <div id="pezdy-screen" class="pezdy-screen hidden">
+            <header class="pezdy-header">
+                <button id="back-from-pezdy" class="back-button">‹</button>
+                <h2>Пёзды</h2>
+            </header>
+            <div class="pezdy-content">
+                <video class="pezdy-video" autoplay loop muted playsinline>
+                    <source src="assets/pezdi-intro.mp4" type="video/mp4" />
+                </video>
+                <div class="pezdy-counter-container">
+                    <div class="pezdy-counter-label">Ваш баланс:</div>
+                    <div class="pezdy-counter" id="user-pezdy-balance">0</div>
+                    <div class="pezdy-name">Пёзды</div>
+                    <button id="add-pezdy-btn" class="add-pezdy-btn">+</button>
+                </div>
+                <div class="pezdy-description">
+                    <h3>Что можно делать с Пёздами:</h3>
+                    <p>• Ставить их как реакции в каналах</p>
+                    <p>• Донатить любимым каналам</p>
+                    <p>• Админы каналов могут обменивать собранные Пёзды на Premium подписку</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомления -->
+        <div id="notification" class="notification hidden">
+            <div class="notification-content">
+                <span id="notification-text"></span>
+                <button id="notification-close">✕</button>
+            </div>
+        </div>
+
+        <!-- Экран входящего звонка -->
+        <div id="incoming-call-screen" class="incoming-call-screen hidden">
+            <div class="incoming-call-content">
+                <div class="incoming-call-avatar" id="incoming-call-avatar"></div>
+                <h2 id="incoming-call-name">Имя пользователя</h2>
+                <p class="incoming-call-text">Входящий звонок...</p>
+                <div class="incoming-call-actions">
+                    <button id="decline-call-btn" class="decline-call-btn">
+                        <img src="assets/end-call-icon.png" alt="Отклонить">
+                    </button>
+                    <button id="accept-call-btn" class="accept-call-btn">
+                        <img src="assets/call-icon.png" alt="Принять">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран активного звонка -->
+        <div id="call-screen" class="call-screen hidden">
+            <div class="call-header">
+                <div class="call-user-name" id="call-user-name">Имя пользователя</div>
+                <div class="call-duration" id="call-duration">00:00</div>
+            </div>
+            <div class="call-video-container">
+                <video id="remote-video" class="remote-video" autoplay playsinline></video>
+                <video id="local-video" class="local-video" autoplay playsinline muted></video>
+            </div>
+            <div class="call-controls">
+                <button id="speaker-btn" class="call-control-btn">
+                    <img src="assets/speaker-icon.png" alt="Динамик" class="call-control-icon">
+                </button>
+                <button id="mute-btn" class="call-control-btn">
+                    <img src="assets/voice-icon.png" alt="Микрофон" class="call-control-icon" id="mute-icon">
+                </button>
+                <button id="video-btn" class="call-control-btn">
+                    <img src="assets/video-icon.png" alt="Видео" class="call-control-icon">
+                </button>
+                <button id="end-call-btn" class="call-control-btn end-call">
+                    <img src="assets/end-call-icon.png" alt="Завершить" class="call-control-icon">
+                </button>
+            </div>
+        </div>
+
+        <!-- Модальное окно создания папки -->
+        <div id="create-folder-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Создать папку</h3>
+                <input
+                    type="text"
+                    id="folder-name-input"
+                    placeholder="Название папки"
+                    class="input-field"
+                />
+                <div class="modal-buttons">
+                    <button id="cancel-folder-btn" class="cancel-button">Отмена</button>
+                    <button id="confirm-folder-btn" class="done-button">Создать</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно выбора папки для чата -->
+        <div id="select-folder-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Добавить в папку</h3>
+                <div id="select-folder-list"></div>
+                <div class="modal-buttons">
+                    <button id="cancel-select-folder-btn" class="cancel-button">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран разделов Избранного -->
+        <div id="favorites-sections-screen" class="favorites-sections-screen hidden">
+            <header class="favorites-sections-header">
+                <button id="back-from-favorites-sections" class="back-button">‹</button>
+                <h2>Избранное</h2>
+            </header>
+            <div class="favorites-tabs">
+                <div class="favorites-tab active" data-section="media">Медиа</div>
+                <div class="favorites-tab" data-section="files">Файлы</div>
+                <div class="favorites-tab" data-section="links">Ссылки</div>
+                <div class="favorites-tab" data-section="voice">Голосовые</div>
+            </div>
+            <div class="favorites-sections-content">
+                <div class="favorites-section active" id="favorites-media">
+                    <div class="favorites-empty">
+                        <img src="assets/empty-media.png" alt="Пусто" class="favorites-empty-icon">
+                        <p class="favorites-empty-text">Пока что здесь пусто</p>
+                    </div>
+                </div>
+                <div class="favorites-section" id="favorites-files">
+                    <div class="favorites-empty">
+                        <img src="assets/empty-files.png" alt="Пусто" class="favorites-empty-icon">
+                        <p class="favorites-empty-text">Пока что здесь пусто</p>
+                    </div>
+                </div>
+                <div class="favorites-section" id="favorites-links">
+                    <div class="favorites-empty">
+                        <img src="assets/empty-links.png" alt="Пусто" class="favorites-empty-icon">
+                        <p class="favorites-empty-text">Пока что здесь пусто</p>
+                    </div>
+                </div>
+                <div class="favorites-section" id="favorites-voice">
+                    <div class="favorites-empty">
+                        <img src="assets/empty-voice.png" alt="Пусто" class="favorites-empty-icon">
+                        <p class="favorites-empty-text">Пока что здесь пусто</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно выбора камеры -->
+        <div id="camera-select-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Выбрать камеру</h3>
+                <div class="modal-buttons">
+                    <button id="front-camera-btn" class="done-button">Фронтальная камера</button>
+                    <button id="back-camera-btn" class="done-button">Задняя камера</button>
+                    <button id="cancel-camera-btn" class="cancel-button">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно пересылки -->
+        <div id="forward-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Переслать сообщение</h3>
+                <div id="forward-chats-list" class="forward-chats-list"></div>
+                <div class="modal-buttons">
+                    <button id="cancel-forward-btn" class="cancel-button">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini App Modal -->
+        <div id="mini-app-modal" class="mini-app-modal hidden">
+            <div class="mini-app-header">
+                <button id="close-mini-app" class="close-mini-app-btn">
+                    <img src="assets/close-mini-app.png" alt="Закрыть">
+                </button>
+            </div>
+            <div id="mini-app-content" class="mini-app-content">
+                <img src="assets/no-mini-app.png" alt="Нет Mini App" class="no-mini-app-icon">
+                <p class="no-mini-app-text">У этого бота нету Mini App</p>
+            </div>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            }
+        </script>
+        <script src="script.js"></script>
+    </body>
+</html>
